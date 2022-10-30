@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.app.ActivityCompat
@@ -31,8 +30,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** Filtered image preview */
-    private val preview: AppCompatImageView by lazy {
+    private val preview1: AppCompatImageView by lazy {
         findViewById(R.id.filtered_image_preview)
+    }
+
+    /** Filtered image preview */
+    private val preview2: AppCompatImageView by lazy {
+        findViewById(R.id.filtered_image_preview2)
     }
 
     /** Camera Permissions */
@@ -87,13 +91,33 @@ class MainActivity : AppCompatActivity() {
      * @param bitmap : Bitmap that will be applied filter
      */
     private fun applyFilter(bitmap: Bitmap) {
+        val start = System.currentTimeMillis()
+       FancyFilter.Builder()
+            .withContext(this)
+            .filter(FancyFilters.NO_9)
+            .bitmap(bitmap)
+            .applyFilter{
+                runOnUiThread {
+                println("Time period while applying filter ${System.currentTimeMillis() - start}")
+                preview1.setImageBitmap(it)
+            }
+        }
+    }
+
+    /** Applying list of filters on camera image then setting to preview view temporarily.
+     * @param bitmap : Bitmap that will be applied filter
+     */
+    private fun applyFilters(bitmap: Bitmap) {
+        val start = System.currentTimeMillis()
         FancyFilter.Builder()
             .withContext(this)
-            .filter(FancyFilters.NO_1)
+            .filters(listOf(FancyFilters.NO_49, FancyFilters.NO_28))
             .bitmap(bitmap)
-            .applyFilter {
+            .applyFilters{
                 runOnUiThread {
-                    preview.setImageBitmap(it)
+                    println("Time period while applying filter ${System.currentTimeMillis() - start}")
+                    preview1.setImageBitmap(it.first())
+                    preview2.setImageBitmap(it[1])
                 }
             }
     }
@@ -104,7 +128,7 @@ class MainActivity : AppCompatActivity() {
             if (savedUri != null) {
                 println( "Image capture is succeed")
 
-                applyFilter(savedUri.uriToBitmap(this@MainActivity)!!)
+                applyFilters(savedUri.uriToBitmap(this@MainActivity)!!.rotateHorizontally())
             }
         }
     }

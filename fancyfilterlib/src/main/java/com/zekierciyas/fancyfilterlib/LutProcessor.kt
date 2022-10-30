@@ -9,9 +9,10 @@ class LutProcessor(private val context: Context) {
 
   private var renderScript: RenderScript = RenderScript.create(context)
   private var rscriptLut: ScriptIntrinsic3DLUT = ScriptIntrinsic3DLUT.create(renderScript, Element.U8_4(renderScript))
+  private var outputBitmap: Bitmap? = null
 
   fun filter(sourceBitmap: Bitmap, lutImageRes: Int?): Bitmap{
-    val outputBitmap = Bitmap.createBitmap(sourceBitmap.width, sourceBitmap.height, sourceBitmap.config)
+    outputBitmap = Bitmap.createBitmap(sourceBitmap.width, sourceBitmap.height, sourceBitmap.config)
     val allocIn = Allocation.createFromBitmap(renderScript, sourceBitmap)
     val allocOut = Allocation.createFromBitmap(renderScript, outputBitmap)
 
@@ -51,6 +52,28 @@ class LutProcessor(private val context: Context) {
 
     allocOut?.copyTo(outputBitmap)
 
-    return outputBitmap
+    return outputBitmap!!
+  }
+
+  fun filters(listOfSourceBitmap: List<Bitmap?>, listOfLutImageRes: List<Int?>): List<Bitmap> {
+    if (listOfLutImageRes.isEmpty()) return emptyList()
+    if (listOfSourceBitmap.size ==  1) {
+      val listOfBitmap = mutableListOf<Bitmap>()
+      listOfLutImageRes.forEach {
+        val bitmap = filter(listOfSourceBitmap.first()!!, it)
+        listOfBitmap.add(bitmap)
+      }
+      return listOfBitmap
+    } else if (listOfLutImageRes.size == listOfSourceBitmap.size) {
+      val listOfBitmap = mutableListOf<Bitmap>()
+      listOfLutImageRes.forEach { lutImageRes ->
+        listOfSourceBitmap.forEach { sourceBitmap ->
+          val bitmap = filter(sourceBitmap = sourceBitmap!!,lutImageRes = lutImageRes )
+          listOfBitmap.add(bitmap)
+        }
+      }
+      return listOfBitmap
+    }
+    return emptyList()
   }
 }

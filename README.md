@@ -1,5 +1,7 @@
 # Fancy Filter
 
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Fancy%20Filter-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/8482)
+
 An Android Library for applying easy, fast and effective 62 (will be added more) LUT filters to photos. With RenderScript, it is aimed to process the color spaces in the LUT and apply them to the picture in the form of a filter.
 
 ## What is LUT?
